@@ -6,8 +6,21 @@ import json
 from pathlib import Path
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
+import sys
 
-CONFIG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")
+# Determinar si estamos ejecutando desde un EXE (PyInstaller) o un script
+if getattr(sys, 'frozen', False):
+    # Directorio temporal donde PyInstaller descomprime los archivos (--onefile)
+    BASE_PATH = sys._MEIPASS
+    # Directorio donde se encuentra el .exe real
+    EXE_DIR = os.path.dirname(sys.executable)
+else:
+    # Directorio donde se encuentra el script .py
+    BASE_PATH = os.path.dirname(os.path.abspath(__file__))
+    EXE_DIR = BASE_PATH
+
+# Config ahora en carpeta temporal de Windows
+CONFIG_FILE = os.path.join(os.environ.get('TEMP', os.getcwd()), "Saneador_config.json")
 
 COMPRESSION_LEVELS = {
     "Store (Sin compresión)": "-mx0",
@@ -20,13 +33,14 @@ COMPRESSION_LEVELS = {
 TARGET_EXTENSIONS = {'.exe', '.dll', '.bat', '.cmd', '.scr', '.vbs', '.ps1'}
 
 def find_7z():
-    # 1. Buscar en la carpeta del script/ejecutable (donde suele estar 7za.exe)
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    p_local = os.path.join(script_dir, "7za.exe")
+    # 1. Buscar en la carpeta del script/ejecutable (donde suele estar 7za.exe cuando es script)
+    # 2. O en el BASE_PATH cuando está empaquetado en el EXE
+    
+    p_local = os.path.join(BASE_PATH, "7za.exe")
     if os.path.exists(p_local):
         return p_local
         
-    # 2. Buscar en rutas estándar si no está en la local
+    # 3. Buscar en rutas estándar si no está en la local
     for p in ["C:\\Program Files\\7-Zip\\7z.exe", "C:\\Program Files (x86)\\7-Zip\\7z.exe"]:
         if os.path.exists(p):
             return p

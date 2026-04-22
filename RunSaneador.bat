@@ -1,5 +1,5 @@
 @echo off
 cd /d "%~dp0"
 echo Iniciando Saneador GUI...
-start pythonw SaneadorGUI.py
+start "" "dist\SaneadorGUI\SaneadorGUI.exe"
 exit
