@@ -1,0 +1,68 @@
+@echo off
+setlocal enabledelayedexpansion
+
+ECHO.
+ECHO ==================================================================
+ECHO           COSECHADORA DE ARCHIVOS v1.3 ("El Saneador")
+ECHO ==================================================================
+ECHO.
+ECHO    [PROPOSITO]
+ECHO    Este script te ayuda a analizar un programa ANTES de instalarlo
+ECHO    en tu PC y correr riesgos.
+ECHO.
+ECHO    [ENTORNO DE EJECUCION]
+ECHO    ANTES de correr este script lo ideal es que estemos dentro de un
+ECHO    sandbox, usamos SandboxiePlus para tal fin.
+ECHO.
+ECHO    [ACCION]
+ECHO    1. Va a buscar todos los archivos "ejecutables" de esta carpeta
+ECHO       (como .exe, .dll, .bat, .cmd, .scr).
+ECHO    2. Los va a meter a TODOS en un unico archivo .zip.
+ECHO.
+ECHO    [PROXIMO PASO - EL MAS IMPORTANTE!]
+ECHO    1. Cuando termine, vas a VIRUSTOTAL.COM
+ECHO    2. Arrastras ese archivo .zip que creamos a la pagina web.
+ECHO.
+ECHO    [EL VEREDICTO]
+ECHO    VirusTotal te va a dar un numero, ej: "0/60".
+ECHO    - Si el resultado es "0"... ESTA LIMPIO! Podes instalarlo.
+ECHO    - Si da "1" o mas... ES PELIGROSO! Descartalo.
+ECHO.
+ECHO ==================================================================
+ECHO.
+ECHO    Presiona cualquier tecla para empezar la cosecha...
+pause
+ECHO.
+ECHO [*] Empezando el laburo!
+ECHO.
+
+REM --- ¡EL TRUCO! Nos movemos a la carpeta del .bat ANTES de nada ---
+cd /d "%~dp0"
+
+REM --- Armamos el nombre del ZIP con el nombre "saneado" ---
+SET "ZIP_FILE=ZIP_pa_ANALIZAR.zip"
+
+ECHO [*] Laburando en: %cd%
+ECHO [*] El archivo de salida "saneado" sera: !ZIP_FILE!
+ECHO.
+
+REM --- Borra el zip anterior si existe ---
+IF EXIST "!ZIP_FILE!" (
+    ECHO [!] Borrando ZIP anterior...
+    del "!ZIP_FILE!"
+)
+
+REM --- El Comando Magico v7.0 ---
+REM --- Ahora le pasamos a PowerShell el nombre "saneado" (!ZIP_FILE!)
+REM --- y lo encerramos en comillas simples por las dudas.
+powershell -ExecutionPolicy Bypass -NoProfile -Command "& { Get-ChildItem -Path '.' -Recurse -Include @('*.exe', '*.dll', '*.bat', '*.cmd', '.scr') | Compress-Archive -DestinationPath '!ZIP_FILE!' -Force }"
+
+ECHO.
+ECHO ==========================================================
+ECHO    LISTORTI!
+ECHO    %cd%\!ZIP_FILE!
+ECHO.
+ECHO    Subite ESE archivo a <<< VirusTotal.com >>> y SI DATA TODO VERDE: FIESTA! (si no, A LA MIERDA con TODO lo que haya en esta carpeta...)
+ECHO ==========================================================
+ECHO.
+pause
