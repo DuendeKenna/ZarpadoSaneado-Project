@@ -1,0 +1,21 @@
+# Build and distribution
+dist/
+build/
+*.spec
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.venv/
+env/
+venv/
+ENV/
+
+# IDs and temporary files
+.idea/
+.vscode/
+*.swp
+*.log
