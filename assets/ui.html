@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>ZarpadoSaneado</title>
+  <link rel="stylesheet" href="xp.css">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      font-family: 'Tahoma', 'Segoe UI', sans-serif;
+      user-select: none;
+      background: #0051ee !important;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    /* .main-window con fondo #0051ee para que las esquinas coincidan con la barra de título */
+    .main-window {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      margin: 0;
+      overflow: hidden !important;
+      box-sizing: border-box;
+      background: #0051ee !important;
+    }
+
+    .title-bar {
+      cursor: default;
+      padding: 0 6px 0 6px;
+      height: 32px;
+      min-height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: none !important;
+      border-left: none !important;
+      border-right: none !important;
+      margin: 0 !important;
+      box-sizing: border-box;
+    }
+
+    .title-bar-text {
+      font-weight: bold;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      pointer-events: none;
+    }
+
+    .window-body-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      margin: 0;
+      padding: 6px 8px 4px 8px;
+      background: #ECE9D8 !important;
+    }
+
+    /* XP Tabs Overrides */
+    menu[role="tablist"] {
+      margin-bottom: 0;
+      padding-left: 4px;
+      display: flex;
+      gap: 2px;
+      flex-wrap: nowrap;
+      align-items: flex-end;
+    }
+
+    menu[role="tablist"] button[role="tab"] {
+      font-family: 'Tahoma', sans-serif;
+      font-size: 11px;
+      padding: 4px 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+
+    .tab-content-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: #ECE9D8;
+      border: 1px solid #7F9DB9;
+      border-top: none;
+      padding: 8px;
+    }
+
+    fieldset {
+      border: 1px solid #D0D0BF;
+      border-radius: 3px;
+      padding: 6px 8px;
+      margin-bottom: 6px;
+    }
+
+    legend {
+      font-weight: bold;
+      color: #003399;
+      padding: 0 4px;
+      font-size: 11px;
+    }
+
+    .row-flex {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .row-flex label {
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    input[type="text"] {
+      font-family: 'Tahoma', sans-serif;
+      font-size: 11px;
+      padding: 2px 4px;
+      border: 1px solid #7F9DB9;
+      background: #FFFFFF;
+    }
+
+    /* Custom Table Styling */
+    .table-container {
+      flex: 1;
+      overflow-y: auto;
+      background: #FFFFFF;
+      border: 1px solid #7F9DB9;
+      margin-bottom: 6px;
+    }
+
+    table.xp-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+
+    table.xp-table th {
+      background: linear-gradient(180deg, #ECE9D8 0%, #DFDBCB 100%);
+      border-right: 1px solid #9E9E8E;
+      border-bottom: 1px solid #9E9E8E;
+      padding: 4px 6px;
+      text-align: left;
+      font-weight: bold;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    table.xp-table td {
+      padding: 3px 6px;
+      border-bottom: 1px solid #F0F0F0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    table.xp-table tr.selected {
+      background-color: #316AC5 !important;
+      color: #FFFFFF !important;
+    }
+
+    table.xp-table tr.duplicate {
+      background-color: #FFE8CC;
+    }
+
+    /* Custom XP Green Jelly Progress Bar */
+    .xp-progress-container {
+      height: 18px;
+      background: #FFFFFF;
+      border: 1px solid #686868;
+      box-shadow: inset 1px 1px 2px rgba(0,0,0,0.15);
+      position: relative;
+      overflow: hidden;
+      border-radius: 2px;
+    }
+
+    .xp-progress-fill {
+      height: 100%;
+      width: 0%;
+      background: repeating-linear-gradient(
+        90deg,
+        transparent 0px,
+        transparent 8px,
+        #FFFFFF 8px,
+        #FFFFFF 10px
+      ),
+      linear-gradient(
+        180deg,
+        #ACEDAD 0%,
+        #7BE47D 14%,
+        #4CDA50 28%,
+        #2ED330 42%,
+        #42D845 57%,
+        #76E275 71%,
+        #15803D 100%
+      );
+      transition: width 0.15s linear;
+    }
+
+    .xp-progress-indeterminate {
+      width: 32px !important;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      animation: xpSliding 1.8s linear infinite;
+    }
+
+    @keyframes xpSliding {
+      0% { left: -36px; }
+      100% { left: 100%; }
+    }
+
+    .xp-progress-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: bold;
+      color: #0F172A;
+      text-shadow: 0 0 2px rgba(255,255,255,0.9);
+      pointer-events: none;
+    }
+
+    .log-box {
+      width: 100%;
+      height: 65px;
+      font-family: 'Consolas', monospace;
+      font-size: 11px;
+      background: #FFFFFF;
+      border: 1px solid #7F9DB9;
+      padding: 4px;
+      overflow-y: scroll;
+      resize: none;
+      margin-bottom: 4px;
+      color: #000000;
+    }
+
+    .status-bar-container {
+      display: flex;
+      gap: 2px;
+      padding-top: 2px;
+    }
+
+    .status-bar-field {
+      font-size: 11px;
+      padding: 2px 6px;
+      border: 1px solid #7F9DB9;
+      background: #ECE9D8;
+    }
+
+    .vt-box {
+      background: #FFFFFF;
+      border: 1px solid #7F9DB9;
+      border-radius: 3px;
+      padding: 16px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .audit-box {
+      background: #FFFFFF;
+      border: 1px solid #7F9DB9;
+      border-radius: 3px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      overflow-y: auto;
+      gap: 10px;
+    }
+
+    .prompt-container {
+      background: #F8FAFC;
+      border: 1px solid #CBD5E1;
+      border-radius: 4px;
+      padding: 8px 10px;
+      font-family: 'Consolas', monospace;
+      font-size: 11px;
+      color: #0F172A;
+      line-height: 1.4;
+      user-select: text;
+      position: relative;
+    }
+
+    .ai-grid {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 4px;
+      flex-wrap: wrap;
+    }
+
+    .ai-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      height: 34px;
+      min-width: 140px;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .icon-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      padding: 2px 6px;
+    }
+
+    .icon-btn img {
+      width: 14px;
+      height: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="window main-window">
+    <!-- Barra de Título XP EmuConsolas -->
+    <div class="title-bar pywebview-drag-region" onmousedown="startDrag(event)">
+      <div class="title-bar-text pywebview-drag-region">
+        <img src="settings_alert.png" width="16" height="16" alt="" class="pywebview-drag-region">
+        <span class="pywebview-drag-region">ZarpadoSaneado</span>
+      </div>
+      <div class="title-bar-controls pywebview-no-drag">
+        <button aria-label="Minimize" class="pywebview-no-drag" onclick="window.pywebview.api.minimize()"></button>
+        <button aria-label="Maximize" class="pywebview-no-drag" onclick="window.pywebview.api.toggle_maximize()"></button>
+        <button aria-label="Close" class="pywebview-no-drag" onclick="window.pywebview.api.close()"></button>
+      </div>
+    </div>
+
+    <!-- Cuerpo de la Ventana -->
+    <div class="window-body window-body-main">
+      
+      <!-- Pestañas XP (Doble clic en espacio vacío desbloquea Dupliminar) -->
+      <menu role="tablist" ondblclick="toggleSecretDupli(event)">
+        <button role="tab" id="tab-btn-cosecha" aria-selected="true" onclick="switchTab('cosecha')">
+          <img src="app_icon_old.png" width="14" height="14">
+          Cosechar
+        </button>
+        <button role="tab" id="tab-btn-dupli" style="display: none;" aria-selected="false" onclick="switchTab('dupli')">
+          <img src="search.png" width="14" height="14">
+          Dupliminar
+        </button>
+        <button role="tab" id="tab-btn-vt" aria-selected="false" onclick="switchTab('virustotal')">
+          <img src="virus.png" width="14" height="14">
+          VirusTotal
+        </button>
+        <button role="tab" id="tab-btn-audit" aria-selected="false" onclick="switchTab('audit')">
+          <img src="pop_up_allowed.png" width="14" height="14">
+          Auditar
+        </button>
+        <div id="tabs-empty-space" style="flex: 1; height: 26px; cursor: default;"></div>
+      </menu>
+
+      <!-- Panel de Contenido de Pestañas -->
+      <div class="tab-content-panel">
+        
+        <!-- Pestaña 1: Cosechar -->
+        <div id="panel-cosecha" style="display: flex; flex-direction: column; height: 100%;">
+          
+          <fieldset>
+            <legend>Configuración de Escaneo</legend>
+            <div class="row-flex">
+              <label style="width: 120px;">Directorio Analizar:</label>
+              <input type="text" id="dir_scan" style="flex: 1;">
+              <button onclick="window.pywebview.api.browse_dir('scan')">Examinar...</button>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Opciones de Compresión (7-Zip)</legend>
+            <div class="row-flex" style="flex-wrap: wrap; gap: 8px;">
+              <label>Formato:</label>
+              <select id="format_var" style="font-size: 11px;">
+                <option value="zip" selected>zip</option>
+                <option value="7z">7z</option>
+              </select>
+
+              <label style="margin-left: 6px;">Compresión:</label>
+              <select id="level_var" style="font-size: 11px;">
+                <option value="Store (Sin compresión)">Store</option>
+                <option value="Fast (Rápido)">Fast</option>
+                <option value="Normal" selected>Normal</option>
+                <option value="Maximum (Máximo)">Maximum</option>
+                <option value="Ultra (Lento pero efectivo)">Ultra</option>
+              </select>
+
+              <span style="margin-left: 10px; display: inline-flex; align-items: center;">
+                <input type="checkbox" id="split_enabled" onchange="toggleSplit()">
+                <label for="split_enabled" style="cursor: pointer; font-size: 11px;">Dividir en partes (MB):</label>
+              </span>
+              <input type="text" id="split_size" value="500" style="width: 50px; margin-left: 4px;" disabled>
+            </div>
+          </fieldset>
+
+          <div style="margin-bottom: 6px;">
+            <button id="btn-run" class="default" style="font-weight: bold; width: 100%; height: 28px;" onclick="startProcess()">
+              ▶ INICIAR COSECHA Y COMPRESIÓN
+            </button>
+          </div>
+
+          <fieldset style="flex: 1; display: flex; flex-direction: column; overflow: hidden; margin-bottom: 0;">
+            <legend>Archivos Sospechosos Recolectados</legend>
+            
+            <div class="table-container" ondblclick="showHarvestActionsBar()">
+              <table class="xp-table">
+                <thead>
+                  <tr>
+                    <th>Ruta Original del Archivo</th>
+                    <th style="width: 100px; text-align: center;">Estado</th>
+                  </tr>
+                </thead>
+                <tbody id="tree-harvest-body">
+                  <!-- Filas renderizadas por JS -->
+                </tbody>
+              </table>
+            </div>
+
+            <div id="harvest-actions-bar" class="row-flex" style="display: none; margin-bottom: 0; gap: 4px;">
+              <button id="btn-del" class="icon-btn" disabled onclick="deleteSelected()">
+                <img src="delete.png" alt=""> Eliminar
+              </button>
+              <button id="btn-move" class="icon-btn" disabled onclick="moveSelected()">
+                <img src="move.png" alt=""> Mover
+              </button>
+              <button id="btn-copy" class="icon-btn" disabled onclick="copySelected()">
+                <img src="copy.png" alt=""> Copiar
+              </button>
+              <button id="btn-open-out" class="icon-btn" disabled onclick="window.pywebview.api.open_output_folder()">
+                <img src="folder.png" alt=""> Archivos Cosechados
+              </button>
+            </div>
+          </fieldset>
+
+        </div>
+
+        <!-- Pestaña 2: Dupliminar (Secreta) -->
+        <div id="panel-dupli" style="display: none; flex-direction: column; height: 100%;">
+          
+          <fieldset>
+            <legend>Configuración de Directorios para Dupliminar</legend>
+            <div class="row-flex">
+              <label style="width: 130px;">Directorio A (Objetivo):</label>
+              <input type="text" id="dupli_dir_a" style="flex: 1;">
+              <button onclick="window.pywebview.api.browse_dir('dupli_a')">Examinar...</button>
+            </div>
+            <div class="row-flex">
+              <label style="width: 130px;">Directorio B (Referencia):</label>
+              <input type="text" id="dupli_dir_b" style="flex: 1;">
+              <button onclick="window.pywebview.api.browse_dir('dupli_b')">Examinar...</button>
+            </div>
+            <button id="btn-dupli-start" class="default" style="font-weight: bold; width: 100%; height: 26px; margin-top: 4px;" onclick="startDupliminar()">
+              🔍 BUSCAR DUPLICADOS
+            </button>
+          </fieldset>
+
+          <fieldset style="flex: 1; display: flex; flex-direction: column; overflow: hidden; margin-bottom: 0;">
+            <legend>Archivos Duplicados Encontrados (Rutas Sincronizadas)</legend>
+            
+            <div class="table-container" style="display: flex;">
+              <div style="flex: 1; border-right: 1px solid #7F9DB9; overflow-y: auto;" id="dupli-scroll-a" onscroll="syncDupliScroll('a')">
+                <table class="xp-table">
+                  <thead>
+                    <tr><th>Ruta en A (Originario)</th></tr>
+                  </thead>
+                  <tbody id="tree-dupli-a-body"></tbody>
+                </table>
+              </div>
+              <div style="flex: 1; overflow-y: auto;" id="dupli-scroll-b" onscroll="syncDupliScroll('b')">
+                <table class="xp-table">
+                  <thead>
+                    <tr><th>Ruta en B (Referente)</th></tr>
+                  </thead>
+                  <tbody id="tree-dupli-b-body"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="row-flex" style="margin-bottom: 0; gap: 4px;">
+              <button id="btn-dupli-del" class="icon-btn" disabled onclick="dupliAction('delete')">
+                <img src="delete.png" alt=""> Eliminar de A
+              </button>
+              <button id="btn-dupli-move" class="icon-btn" disabled onclick="dupliAction('move')">
+                <img src="move.png" alt=""> Mover de A
+              </button>
+              <button id="btn-dupli-copy" class="icon-btn" disabled onclick="dupliAction('copy')">
+                <img src="copy.png" alt=""> Copiar de A
+              </button>
+            </div>
+          </fieldset>
+
+        </div>
+
+        <!-- Pestaña 3: VirusTotal -->
+        <div id="panel-virustotal" style="display: none; flex-direction: column; height: 100%;">
+          <div class="vt-box">
+            <img src="virus.png" width="48" height="48" alt="VirusTotal">
+            <h3 style="margin: 0; color: #003399;">Analizador de VirusTotal</h3>
+            <p style="font-size: 11px; color: #555555; max-width: 420px; margin: 0; line-height: 1.4;">
+              Subí tus archivos comprimidos o divididos en partes de 500MB generados en <strong>_zaneado</strong> a VirusTotal para verificar su seguridad en más de 70 antivirus en paralelo.
+            </p>
+
+            <div style="display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 380px; margin-top: 8px;">
+              <button class="default" style="font-weight: bold; height: 36px; font-size: 11px;" onclick="window.pywebview.api.open_virustotal_browser()">
+                🌐 Abrir VirusTotal (en tu Navegador Web)
+              </button>
+              <button style="height: 30px; font-size: 11px;" onclick="window.pywebview.api.open_virustotal_window()">
+                🛡️ Abrir VirusTotal (Ventana Integrada)
+              </button>
+              <button style="height: 30px; font-size: 11px;" onclick="window.pywebview.api.open_output_folder()">
+                📂 Abrir Carpeta _zaneado (Explorador)
+              </button>
+            </div>
+
+            <fieldset style="width: 100%; max-width: 440px; margin-top: 12px; text-align: left;">
+              <legend>Instrucciones de Uso</legend>
+              <ol style="font-size: 11px; margin: 4px 0 4px 18px; padding: 0; color: #333333; line-height: 1.5;">
+                <li>Hacé clic en <strong>Archivos Cosechados</strong> para ver tus archivos en <code>_zaneado</code>.</li>
+                <li>Abrí <strong>VirusTotal</strong> en ventana dedicada o navegador.</li>
+                <li>Arrastrá tu archivo <code>Analisis_Completo.zip</code> o las partes divididas directamente para escanear.</li>
+              </ol>
+            </fieldset>
+          </div>
+        </div>
+
+        <!-- Pestaña 4: Auditar -->
+        <div id="panel-audit" style="display: none; flex-direction: column; height: 100%;">
+          <div class="audit-box">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <img src="pop_up_allowed.png" width="24" height="24" alt="">
+              <h3 style="margin: 0; color: #003399; font-size: 14px;">Auditar Análisis</h3>
+            </div>
+
+            <p style="font-size: 11px; color: #333333; margin: 0; line-height: 1.4;">
+              Copiá el texto de todos los resultados de VirusTotal y pegalo en tu chat de IA favorito luego de este prompt:
+            </p>
+
+            <div class="prompt-container" id="prompt-text">segun este analisis de Virus Total, teniendo en cuenta que se trata de software crackeado, determina si las detecciones son presuntos falsos positivos o una real amenaza:</div>
+
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <button class="default icon-btn" style="font-weight: bold; height: 28px;" onclick="copyPrompt()">
+                <img src="copy.png" alt=""> Copiar Prompt al Portapapeles
+              </button>
+              <span id="copy-feedback" style="font-size: 11px; color: #008000; font-weight: bold; display: none;">¡Copiado con éxito!</span>
+            </div>
+
+            <fieldset style="margin-top: 6px; text-align: center;">
+              <legend>Abrir Chat de IA (en tu Navegador Web)</legend>
+              <div class="ai-grid">
+                <button class="ai-btn default" style="font-weight: bold;" onclick="window.pywebview.api.open_ai_external('Google Gemini', 'https://gemini.google.com/')">
+                  ✨ Gemini
+                </button>
+                <button class="ai-btn default" style="font-weight: bold;" onclick="window.pywebview.api.open_ai_external('ChatGPT', 'https://chatgpt.com/')">
+                  🤖 ChatGPT
+                </button>
+                <button class="ai-btn default" style="font-weight: bold;" onclick="window.pywebview.api.open_ai_external('Perplexity AI', 'https://www.perplexity.ai/')">
+                  🔍 Perplexity
+                </button>
+              </div>
+            </fieldset>
+
+            <fieldset style="margin-top: 4px; text-align: center;">
+              <legend>Abrir Chat de IA (Ventana Integrada)</legend>
+              <div class="ai-grid">
+                <button class="ai-btn" onclick="window.pywebview.api.open_ai_browser('Google Gemini', 'https://gemini.google.com/')">
+                  ✨ Gemini
+                </button>
+                <button class="ai-btn" onclick="window.pywebview.api.open_ai_browser('ChatGPT', 'https://chatgpt.com/')">
+                  🤖 ChatGPT
+                </button>
+                <button class="ai-btn" onclick="window.pywebview.api.open_ai_browser('Perplexity AI', 'https://www.perplexity.ai/')">
+                  🔍 Perplexity
+                </button>
+              </div>
+            </fieldset>
+
+            <fieldset style="margin-top: 2px;">
+              <legend>Flujo de Trabajo Recomendado</legend>
+              <ol style="font-size: 11px; margin: 4px 0 4px 18px; padding: 0; color: #444444; line-height: 1.4;">
+                <li>Copiá la tabla de detecciones o el enlace del informe generado en VirusTotal.</li>
+                <li>Hacé clic en <strong>Copiar Prompt al Portapapeles</strong>.</li>
+                <li>Abrí tu IA favorita (Gemini, ChatGPT o Perplexity) y pegá el prompt junto al informe.</li>
+              </ol>
+            </fieldset>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Barra de Progreso Inferior Compartida -->
+      <div style="margin-top: 4px;">
+        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 2px;">
+          <span><strong>Progreso:</strong> <span id="task-status-lbl">Listo</span></span>
+        </div>
+
+        <div class="xp-progress-container">
+          <div id="progress-bar-fill" class="xp-progress-fill"></div>
+          <div id="progress-bar-text" class="xp-progress-text">0%</div>
+        </div>
+
+        <div style="margin-top: 4px;">
+          <textarea id="log-text" class="log-box" readonly></textarea>
+        </div>
+
+        <div class="status-bar-container">
+          <div id="status-main" class="status-bar-field" style="flex: 1;">Listo para cosechar o limpiar</div>
+          <div id="status-items" class="status-bar-field">Archivos: 0</div>
+          <div id="status-7z" class="status-bar-field">7-Zip: Detectado</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    let selectedHarvestItems = new Set();
+    let isDupliSyncing = false;
+
+    function startDrag(e) {
+      if (e.target.closest('button, input, select, textarea')) return;
+      if (window.pywebview && window.pywebview.api) {
+        window.pywebview.api.start_drag();
+      }
+    }
+
+    function showHarvestActionsBar() {
+      const bar = document.getElementById('harvest-actions-bar');
+      if (bar) {
+        bar.style.display = 'flex';
+      }
+    }
+
+    function toggleSecretDupli(e) {
+      if (e.target.tagName === 'MENU' || e.target.id === 'tabs-empty-space') {
+        const btnDupli = document.getElementById('tab-btn-dupli');
+        if (btnDupli.style.display === 'none' || !btnDupli.style.display) {
+          btnDupli.style.display = 'inline-flex';
+          if (window.pywebview && window.pywebview.api) {
+            window.pywebview.api.log('Pestaña Dupliminar desbloqueada.');
+          }
+        } else {
+          btnDupli.style.display = 'none';
+          if (btnDupli.getAttribute('aria-selected') === 'true') {
+            switchTab('cosecha');
+          }
+        }
+      }
+    }
+
+    function switchTab(tab) {
+      const btnCosecha = document.getElementById('tab-btn-cosecha');
+      const btnDupli = document.getElementById('tab-btn-dupli');
+      const btnVt = document.getElementById('tab-btn-vt');
+      const btnAudit = document.getElementById('tab-btn-audit');
+
+      const panelCosecha = document.getElementById('panel-cosecha');
+      const panelDupli = document.getElementById('panel-dupli');
+      const panelVt = document.getElementById('panel-virustotal');
+      const panelAudit = document.getElementById('panel-audit');
+
+      btnCosecha.setAttribute('aria-selected', 'false');
+      btnDupli.setAttribute('aria-selected', 'false');
+      btnVt.setAttribute('aria-selected', 'false');
+      btnAudit.setAttribute('aria-selected', 'false');
+
+      panelCosecha.style.display = 'none';
+      panelDupli.style.display = 'none';
+      panelVt.style.display = 'none';
+      panelAudit.style.display = 'none';
+
+      if (tab === 'cosecha') {
+        btnCosecha.setAttribute('aria-selected', 'true');
+        panelCosecha.style.display = 'flex';
+      } else if (tab === 'dupli') {
+        btnDupli.setAttribute('aria-selected', 'true');
+        panelDupli.style.display = 'flex';
+      } else if (tab === 'virustotal') {
+        btnVt.setAttribute('aria-selected', 'true');
+        panelVt.style.display = 'flex';
+      } else if (tab === 'audit') {
+        btnAudit.setAttribute('aria-selected', 'true');
+        panelAudit.style.display = 'flex';
+      }
+    }
+
+    function copyPrompt() {
+      const text = document.getElementById('prompt-text').innerText.trim() + '\n';
+      navigator.clipboard.writeText(text).then(() => {
+        const fb = document.getElementById('copy-feedback');
+        fb.style.display = 'inline';
+        setTimeout(() => { fb.style.display = 'none'; }, 3000);
+      }).catch(() => {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        const fb = document.getElementById('copy-feedback');
+        fb.style.display = 'inline';
+        setTimeout(() => { fb.style.display = 'none'; }, 3000);
+      });
+    }
+
+    function toggleSplit() {
+      const chk = document.getElementById('split_enabled');
+      const entry = document.getElementById('split_size');
+      entry.disabled = !chk.checked;
+    }
+
+    function syncDupliScroll(source) {
+      if (isDupliSyncing) return;
+      isDupliSyncing = true;
+      const scrollA = document.getElementById('dupli-scroll-a');
+      const scrollB = document.getElementById('dupli-scroll-b');
+      if (source === 'a') {
+        scrollB.scrollTop = scrollA.scrollTop;
+      } else {
+        scrollA.scrollTop = scrollB.scrollTop;
+      }
+      setTimeout(() => { isDupliSyncing = false; }, 20);
+    }
+
+    // Funciones invocadas hacia Python API
+    function startProcess() {
+      const config = {
+        dir_scan: document.getElementById('dir_scan').value,
+        format: document.getElementById('format_var').value,
+        level: document.getElementById('level_var').value,
+        split_enabled: document.getElementById('split_enabled').checked,
+        split_size: document.getElementById('split_size').value
+      };
+      window.pywebview.api.start_process(config);
+    }
+
+    function startDupliminar() {
+      const dir_a = document.getElementById('dupli_dir_a').value;
+      const dir_b = document.getElementById('dupli_dir_b').value;
+      window.pywebview.api.start_dupliminar(dir_a, dir_b);
+    }
+
+    function deleteSelected() {
+      const files = Array.from(selectedHarvestItems);
+      window.pywebview.api.delete_selected(files);
+    }
+
+    function moveSelected() {
+      const files = Array.from(selectedHarvestItems);
+      window.pywebview.api.move_selected(files);
+    }
+
+    function copySelected() {
+      const files = Array.from(selectedHarvestItems);
+      window.pywebview.api.copy_selected(files);
+    }
+
+    function dupliAction(action) {
+      window.pywebview.api.dupli_action(action);
+    }
+
+    // Funciones invocadas desde Python hacia JS
+    window.ui = {
+      setConfigs: function(cfg) {
+        if (cfg.dir_scan) document.getElementById('dir_scan').value = cfg.dir_scan;
+        if (cfg.dupli_a) document.getElementById('dupli_dir_a').value = cfg.dupli_a;
+        if (cfg.dupli_b) document.getElementById('dupli_dir_b').value = cfg.dupli_b;
+      },
+      set7zStatus: function(txt) {
+        document.getElementById('status-7z').innerText = '7-Zip: ' + txt;
+      },
+      log: function(msg) {
+        const txt = document.getElementById('log-text');
+        txt.value += msg + '\n';
+        txt.scrollTop = txt.scrollHeight;
+      },
+      clearLog: function() {
+        document.getElementById('log-text').value = '';
+      },
+      setProgress: function(val, text) {
+        const fill = document.getElementById('progress-bar-fill');
+        const txt = document.getElementById('progress-bar-text');
+        const status = document.getElementById('task-status-lbl');
+        fill.classList.remove('xp-progress-indeterminate');
+        fill.style.width = val + '%';
+        txt.innerText = Math.round(val) + '%';
+        if (text) status.innerText = text;
+      },
+      setIndeterminate: function(active, text) {
+        const fill = document.getElementById('progress-bar-fill');
+        const status = document.getElementById('task-status-lbl');
+        if (active) {
+          fill.classList.add('xp-progress-indeterminate');
+        } else {
+          fill.classList.remove('xp-progress-indeterminate');
+        }
+        if (text) status.innerText = text;
+      },
+      updateHarvestTree: function(files) {
+        const tbody = document.getElementById('tree-harvest-body');
+        tbody.innerHTML = '';
+        selectedHarvestItems.clear();
+
+        files.forEach((f) => {
+          const tr = document.createElement('tr');
+          tr.dataset.path = f.path;
+          tr.onclick = function(e) {
+            if (e.ctrlKey || e.metaKey) {
+              if (selectedHarvestItems.has(f.path)) {
+                selectedHarvestItems.delete(f.path);
+                tr.classList.remove('selected');
+              } else {
+                selectedHarvestItems.add(f.path);
+                tr.classList.add('selected');
+              }
+            } else {
+              document.querySelectorAll('#tree-harvest-body tr').forEach(r => r.classList.remove('selected'));
+              selectedHarvestItems.clear();
+              selectedHarvestItems.add(f.path);
+              tr.classList.add('selected');
+            }
+          };
+          tr.innerHTML = `<td>${f.path}</td><td style="text-align: center;">${f.status}</td>`;
+          tbody.appendChild(tr);
+        });
+
+        document.getElementById('status-items').innerText = 'Archivos: ' + files.length;
+      },
+      setHarvestButtonsState: function(enabled, enableHarvestedFolder) {
+        document.getElementById('btn-del').disabled = !enabled;
+        document.getElementById('btn-move').disabled = !enabled;
+        document.getElementById('btn-copy').disabled = !enabled;
+        document.getElementById('btn-run').disabled = !enabled;
+        if (enableHarvestedFolder !== undefined) {
+          document.getElementById('btn-open-out').disabled = !enableHarvestedFolder;
+        }
+      },
+      clearDupliTrees: function() {
+        document.getElementById('tree-dupli-a-body').innerHTML = '';
+        document.getElementById('tree-dupli-b-body').innerHTML = '';
+      },
+      appendDupliRows: function(rows) {
+        const tbodyA = document.getElementById('tree-dupli-a-body');
+        const tbodyB = document.getElementById('tree-dupli-b-body');
+        rows.forEach(r => {
+          const trA = document.createElement('tr');
+          const trB = document.createElement('tr');
+          if (r.is_dup) {
+            trA.classList.add('duplicate');
+            trB.classList.add('duplicate');
+          }
+          trA.innerHTML = `<td>${r.a}</td>`;
+          trB.innerHTML = `<td>${r.b}</td>`;
+          tbodyA.appendChild(trA);
+          tbodyB.appendChild(trB);
+        });
+      },
+      setDupliButtonsState: function(enabled) {
+        document.getElementById('btn-dupli-del').disabled = !enabled;
+        document.getElementById('btn-dupli-move').disabled = !enabled;
+        document.getElementById('btn-dupli-copy').disabled = !enabled;
+        document.getElementById('btn-dupli-start').disabled = !enabled;
+      },
+      onHarvestComplete: function() {
+        try {
+          const audio = new Audio('ahita.mp3');
+          audio.play().catch(e => console.log('Audio play error:', e));
+        } catch(e) {}
+        const taskStatus = document.getElementById('task-status-lbl');
+        if (taskStatus) {
+          taskStatus.innerHTML = `Cosecha completada — <a href="#" style="color: #003399; font-weight: bold; text-decoration: underline;" onclick="window.pywebview.api.open_output_folder(); return false;">📂 Abrir carpeta _zaneado</a>`;
+        }
+        const statusMain = document.getElementById('status-main');
+        if (statusMain) {
+          statusMain.innerHTML = `✅ Cosecha lista. <a href="#" style="color: #003399; font-weight: bold; text-decoration: underline;" onclick="window.pywebview.api.open_output_folder(); return false;">📂 Abrir carpeta _zaneado</a>`;
+        }
+      }
+    };
+  </script>
+</body>
+</html>

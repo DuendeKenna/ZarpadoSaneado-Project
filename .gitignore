@@ -19,3 +19,5 @@ ENV/
 .vscode/
 *.swp
 *.log
+config.json
+*.asd
