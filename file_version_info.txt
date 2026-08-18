@@ -1,0 +1,37 @@
+# UTF-8
+#
+# Informacion de Version para PyInstaller (Windows PE Version Resource)
+#
+VSVersionInfo(
+  ffi=FixedFileInfo(
+    filevers=(1, 0, 0, 0),
+    prodvers=(1, 0, 0, 0),
+    mask=0x3f,
+    flags=0x0,
+    OS=0x40004,
+    fileType=0x1,
+    subtype=0x0,
+    date=(0, 0)
+  ),
+  kids=[
+    StringFileInfo(
+      [
+        StringTable(
+          '040904b0',
+          [
+            StringStruct('CompanyName', 'Zarpado Software'),
+            StringStruct('FileDescription', 'Zarpado Saneado - Herramienta de Saneamiento de Archivos'),
+            StringStruct('FileVersion', '1.0.0.0'),
+            StringStruct('InternalName', 'ZarpadoSaneado'),
+            StringStruct('LegalCopyright', 'Copyright (C) 2026 Zarpado'),
+            StringStruct('OriginalFilename', 'ZarpadoSaneado.exe'),
+            StringStruct('ProductName', 'Zarpado Saneado'),
+            StringStruct('ProductVersion', '1.0.0.0'),
+            StringStruct('Comments', 'Utilidad para saneamiento y gestion de archivos comprimidos')
+          ]
+        )
+      ]
+    ),
+    VarFileInfo([VarStruct('Translation', [1033, 1200])])
+  ]
+)
